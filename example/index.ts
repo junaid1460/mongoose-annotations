@@ -1,3 +1,11 @@
+import {
+  arrayOf,
+  collection,
+  field,
+  schema,
+  MongooseModel,
+} from "mongoose-annotations";
+
 @schema({ _id: false })
 class UserAuth {
   @field() name?: string = "name";
