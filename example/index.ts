@@ -4,7 +4,7 @@ import { collection, field, schema, MongooseModel, Doc } from "../src/index";
 class UserAuth {
   @field() name?: string = "name";
 
-  @field() type?: number = 254;
+  @field() type?: number = 254; // Default schema value will be 254
 
   getType() {
     return this.type;
@@ -12,11 +12,11 @@ class UserAuth {
 }
 
 export class UserSchema {
-  @field({ default: Date })
+  @field({ default: Date }) // Default provider function
   date!: Date;
 
   @field()
-  randomDATA: { heloo?: string } = { heloo: "hello" };
+  randomDATA: { heloo?: string } = { heloo: "hello" }; // Mixed type
 
   @field({ type: [UserAuth] })
   auths!: Doc<UserAuth>[];
