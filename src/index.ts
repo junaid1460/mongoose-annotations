@@ -7,6 +7,7 @@ import {
   Schema,
   SchemaOptions,
   SchemaTypeOpts,
+  MongooseDocument,
 } from "mongoose";
 import "reflect-metadata";
 
@@ -137,4 +138,4 @@ export function MongooseModel<T, F = {}>(): Model<T & Document, F> {
   return Model as any;
 }
 
-export type Doc<T> = T & Document;
+export type Doc<T> = T & MongooseDocument;
