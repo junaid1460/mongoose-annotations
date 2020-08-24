@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mongoose-annotations": "0.0.3"
+    "mongoose-annotations": "0.0.5"
   }
 }

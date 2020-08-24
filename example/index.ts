@@ -1,12 +1,6 @@
-import {
-  arrayOf,
-  collection,
-  field,
-  schema,
-  MongooseModel,
-} from "mongoose-annotations";
+import { collection, field, schema, MongooseModel, Doc } from "../src/index";
 
-@schema({ _id: false })
+@schema({ _id: true })
 class UserAuth {
   @field() name?: string = "name";
 
@@ -19,13 +13,13 @@ class UserAuth {
 
 export class UserSchema {
   @field({ default: Date })
-  name!: Date;
+  date!: Date;
 
   @field()
-  type: { heloo?: string } = { heloo: "hello" };
+  randomDATA: { heloo?: string } = { heloo: "hello" };
 
-  @field({ type: arrayOf(UserAuth) })
-  auth: UserAuth[] = [];
+  @field({ type: [UserAuth] })
+  auths!: Doc<UserAuth>[];
 
   getName() {
     return "helslls";
@@ -41,4 +35,8 @@ export class User extends MongooseModel<UserSchema>() {
   }
 }
 
-console.log(new User().type);
+console.log(
+  new User({
+    auths: [{}],
+  }).auths
+);
