@@ -84,15 +84,9 @@ export const field = <T>(options?: SchemaTypeOpts<T>): PropertyDecorator => (
 
   const schema = (target as any)[schemaSymbol];
   const fieldType = Reflect.getMetadata("design:type", target, key);
-  if (fieldType[isDecoratedType] === true) {
-    schema[key] = {
-      type: fieldType.schema,
-      default: {},
-    };
-    if (options) {
-      Object.assign(schema[key], options);
-    }
-  } else if (fieldType === Number || fieldType === String) {
+  const type = getSchemaType(fieldType);
+
+  if (type !== Object) {
     schema[key] = {
       type: fieldType,
     };
