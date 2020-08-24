@@ -2,6 +2,9 @@ import { collection, field, schema, MongooseModel, Doc } from "../src/index";
 
 @schema({ _id: true })
 class UserAuth {
+  // Lib will call new on the class and figures the default values
+  // If default is dynamic then pass in a provider function @field({ default: ... })
+  // These defaults will be part of generated schema
   @field() name?: string = "name";
 
   @field() type?: number = 254; // Default schema value will be 254
