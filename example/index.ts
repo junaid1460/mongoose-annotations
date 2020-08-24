@@ -18,11 +18,11 @@ class UserAuth {
 }
 
 export class UserSchema {
-  @field()
-  name: string = "hello";
+  @field({ default: Date })
+  name!: Date;
 
   @field()
-  type: number = 23;
+  type: { heloo?: string } = { heloo: "hello" };
 
   @field({ type: arrayOf(UserAuth) })
   auth: UserAuth[] = [];
@@ -41,10 +41,4 @@ export class User extends MongooseModel<UserSchema>() {
   }
 }
 
-User.findById("5f42181555791f7879cfaebc")
-  .exec()
-  .then((e) => {
-    e?.auth.push(new UserAuth());
-    e?.getMyName();
-    console.log(new User(e).name);
-  });
+console.log(new User().type);
