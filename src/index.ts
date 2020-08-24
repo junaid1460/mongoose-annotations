@@ -27,8 +27,10 @@ export const schema = (options?: SchemaOptions): ClassDecorator => (target) => {
           type["default"] = defaultValue;
         }
       });
-    } catch {
-      throw new Error("Contructor not allowed in schema");
+    } catch (e) {
+      throw new Error(
+        "Contructor/extending schema with non schema not allowed in schema"
+      );
     }
   }
   const mongooseSchema = new Schema(currentSchema, options);
@@ -135,4 +137,4 @@ export function MongooseModel<T, F = {}>(): Model<T & Document, F> {
   return Model as any;
 }
 
-export type DocResult<T> = (T & Document) | null;
+export type Doc<T> = T & Document;
