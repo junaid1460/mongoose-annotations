@@ -21,6 +21,9 @@ export class UserSchema {
   @field({ type: [UserAuth] })
   auths!: Doc<UserAuth>[];
 
+  @field({ type: UserAuth })
+  auth: Doc<UserAuth> = {} as any; // Doc type brings type annotations for sub schema
+
   getName() {
     return "helslls";
   }
@@ -38,5 +41,5 @@ export class User extends MongooseModel<UserSchema>() {
 console.log(
   new User({
     auths: [{}],
-  }).auths
+  }).auth.depopulate
 );
