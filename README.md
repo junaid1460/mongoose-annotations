@@ -12,8 +12,9 @@ Provides basic annotations to get started with mongoose in typescript
   - options: Field options. eg: index, default etc
   - when options is not provided the type information is gathered from `reflect-metadata` all simple types can easily be gathered
     - `@field() name?: string` => `{type: String}`
-    - `@field() name?: Date` => `{type: Date}`
-    - `@field({type: String}) name?: number` => `{type: String}` options have higher preference
+    - `@field() count?: number = 100` => `{type: String, default: 100 }` The default is figured by calling new MySchema, so it's necessary that constructor overrides must have default values.
+    - `@field() date?: Date` => `{type: Date}`
+    - `@field({type: String}) value?: number` => `{type: String}` options have higher preference
 - `schema = (options?: SchemaOptions): ClassDecorator`
   - options: mongoose schema options. eg: disable id add timestamps
 - `collection = (name: string, target: any, skipInit = false): ClassDecorator`
