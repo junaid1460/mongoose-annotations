@@ -71,11 +71,39 @@ export class User extends MongooseModel<UserSchema>() {
   }
 }
 
-console.log(
-  new User({
-    auths: [{}],
-  }).auth.depopulate
-);
+```
+
+### Model usage
+
+```typescript
+connect('mongodb://localhost:27017/myapp', {useNewUrlParser: true})
+```
+
+#### Indices
+```typescript
+User.schema.index({
+    "auths.name": 1,
+    "type": 1,
+})
+
+User.createIndexes()
+```
+
+#### Fetch and save
+```typescript
+User.findById(("5f42181555791f7879cfaebc"))
+    .exec()
+    .then((e) => {
+      e?.auth.push(new UserAuth())
+      e?.getMyName()
+      e!!.auths.name = "Junaid"
+      e!!.auths.value = 100
+      e?.markModified("auths")
+      return e?.save()
+    }).then(e => {
+        console.log(JSON.stringify(e))
+    });
+
 ```
 
 ### License
