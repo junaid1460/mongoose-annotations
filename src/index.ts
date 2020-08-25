@@ -15,23 +15,57 @@ const schemaSymbol = Symbol(undefined);
 const schemaInstanceSymbol = Symbol(undefined);
 const isDecoratedType = Symbol(undefined);
 const isSchemaType = Symbol(undefined);
-
+let defaults: {
+  /**
+   * If set to to false then assigned values will not be part of schema
+   * ```typescript
+   * class MySchema {
+   *   \@field()
+   *   name: string = "hello";
+   * }
+   * // This will generate a schema like this
+   * const schema = {
+   *  name: {
+   *    type: String,
+   *    default: "hello" // ||= new MySchema().name
+   *  }
+   * }
+   *
+   * ```
+   */
+  evaluateDefaultAssignedValue: boolean;
+} = {
+  evaluateDefaultAssignedValue: true,
+};
+export function setDefaults(newDefaults: typeof defaults) {
+  Object.assign(defaults, newDefaults);
+}
+/**
+ * annotation that turns a class into a mongoose subschema
+ * ```
+ * \@schema({_id: false})
+ * class MySchema {
+ *    \@field() name: string = "hello";
+ * }
+ * ```
+ * @param options
+ */
 export const schema = (options?: SchemaOptions): ClassDecorator => (target) => {
   const currentSchema = target.prototype[schemaSymbol] || {};
-  setDefaults: {
-    try {
-      const object = new (target as any)();
-      Object.keys(currentSchema).forEach((key) => {
-        const type = currentSchema[key];
-        const defaultValue = object[key];
-        if (defaultValue && !type["default"]) {
-          type["default"] = defaultValue;
-        }
-      });
-    } catch (e) {
-      throw new Error(
-        "Contructor/extending schema with non schema not allowed in schema"
-      );
+  setDefaultValues: {
+    if (defaults.evaluateDefaultAssignedValue) {
+      try {
+        const object = new (target as any)();
+        Object.keys(currentSchema).forEach((key) => {
+          const type = currentSchema[key];
+          const defaultValue = object[key];
+          if (defaultValue && !type["default"]) {
+            type["default"] = defaultValue;
+          }
+        });
+      } catch (e) {
+        throw new Error("");
+      }
     }
   }
   const mongooseSchema = new Schema(currentSchema, options);
@@ -49,6 +83,21 @@ export const schema = (options?: SchemaOptions): ClassDecorator => (target) => {
   return target;
 };
 
+/**
+ * Annotation turrns a class into usable mongoose model
+ * ```
+ * class MySchema {
+ *  \@field() name: string = "hello";
+ * }
+ *
+ * \@collection("my_collection", MySchema)
+ * class MyCollection {
+ * }
+ * ```
+ * @param name name of collection
+ * @param target target schema
+ * @param skipInit skip schema init
+ */
 export const collection = (
   name: string,
   target: any,
@@ -74,7 +123,16 @@ export const collection = (
 
   return CurrentModel as any;
 };
-
+/**
+ * Annotate class property as mongoose schema field
+ * ```
+ * class MySchema {
+ *    \@field() name: string = "hello"; // String
+ *    \@field() random: {name: string} = {} as any; // Schema.Types.Mixed
+ * }
+ * ```
+ * @param options
+ */
 export const field = <T>(options?: SchemaTypeOpts<T>): PropertyDecorator => (
   target,
   key
@@ -133,9 +191,24 @@ export const arrayOf = <T>(schema: T): T[] => {
   });
   return type;
 };
-
+/**
+ * Returns typed extendable mongoose.Model
+ */
 export function MongooseModel<T, F = {}>(): Model<T & Document, F> {
   return Model as any;
 }
 
+/**
+ * ```
+ * class MySchema {
+ *    \@field() name: string = "hello"; // String
+ *    \@field() random: {name: string} = {} as any; // Schema.Types.Mixed
+ * }
+ * class User {
+ *    \@field({type: MySchema}) mydata: Doc<MySchema> = {} as any
+ * }
+ *
+ * ```
+ * Adds type annotation for sub schema field
+ */
 export type Doc<T> = T & MongooseDocument;
