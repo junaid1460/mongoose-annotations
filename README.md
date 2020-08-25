@@ -6,7 +6,25 @@ Provides basic annotations to get started with mongoose in typescript
     npm i mongoose-annotations
 ```
 
-example:
+#### API:
+
+- `field = <T>(options?: SchemaTypeOpts<T>): PropertyDecorator`
+  - options: Field options. eg: index, default etc
+  - when options is not provided the type information is gathered from `reflect-metadata` all simple types can easily be gathered
+    - `@field() name?: string` => `{type: String}`
+    - `@field() name?: Date` => `{type: Date}`
+    - `@field({type: String}) name?: number` => `{type: String}` options have higher preference
+- `schema = (options?: SchemaOptions): ClassDecorator`
+  - options: mongoose schema options. eg: disable id add timestamps
+- `collection = (name: string, target: any, skipInit = false): ClassDecorator`
+  - name : collection name
+  - target: class that decorated with schema or field
+- `arrayOf = (target: any): [SchemaType]` optional added for purpose improving readability
+  - target: Any mongoose allowed types
+- `function MongooseModel<T, F = {}>(): Model<T & Document, F>` This function is totally unnecessary, but this adds type information to the extended model, thus increases readability and correctness.
+- `type Doc<T> = T & MongooseDocument;` This type adds annotation for field/method made available in subschema by mongoose implicitly
+
+check example for usage:
 
 ```typescript
 import { collection, field, schema, MongooseModel, Doc } from "../src/index";
