@@ -19,6 +19,7 @@ Provides basic annotations to get started with mongoose in typescript
 - `collection = (name: string, target: any, skipInit = false): ClassDecorator`
   - name : collection name
   - target: class that decorated with schema or field
+  - skipInit: skip schema init
 - `arrayOf = (target: any): [SchemaType]` optional added for purpose improving readability
   - target: Any mongoose allowed types
 - `function MongooseModel<T, F = {}>(): Model<T & Document, F>` This function is totally unnecessary, but this adds type information to the extended model, thus increases readability and correctness.
