@@ -20,8 +20,8 @@
   },
   "homepage": "https://github.com/junaid1460/mongoose-annotations#readme",
   "dependencies": {
-    "@types/mongoose": "^5.7.36",
-    "mongoose": "^5.10.0",
+    "@types/mongoose": ">=5.0.0",
+    "mongoose": ">=5.0.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
