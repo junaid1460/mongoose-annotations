@@ -10,18 +10,18 @@ Provides basic annotations to get started with mongoose in typescript
 
 - `field = <T>(options?: SchemaTypeOpts<T>): PropertyDecorator`
   - options: Field options. eg: index, default etc
-  - when options is not provided the type information is gathered from `reflect-metadata` all simple types can easily be gathered
+  - when options is not provided the type information is gathered with `reflect-metadata`, all simple types can easily be gathered
     - `@field() name?: string` => `{ type: String }`
-    - `@field() count?: number = 100` => `{ type: String, default: 100 }` The default is figured by calling new MySchema, so it's necessary that constructor overrides must have default values.
+    - `@field() count?: number = 100` => `{ type: String, default: 100 }` The default is figured by calling `new MySchema`, so it's necessary that constructor overrides must have default values. This behaviour can be disabled using `setDefaults({...})`
     - `@field() date?: Date` => `{ type: Date }`
-    - `@field({type: String}) value?: number` => `{ type: String }` options have higher preference
+    - `@field({type: String}) value?: number` => `{ type: String }` options have higher preference.
 - `schema = (options?: SchemaOptions): ClassDecorator`
-  - options: mongoose schema options. eg: disable id add timestamps
+  - options: mongoose schema options. eg: disable \_id, add timestamps
 - `collection = (name: string, target: any, skipInit = false): ClassDecorator`
-  - name : collection name
+  - name : collection name for database
   - target: class that decorated with schema or field
-  - skipInit: skip schema init
-- `arrayOf = (target: any): [SchemaType]` optional added for purpose improving readability
+  - skipInit: skip schema initialisation
+- `arrayOf = (target: any): [SchemaType]` optional, added for the purpose of improving readability
   - target: Any mongoose allowed types
 - `function MongooseModel<T, F = {}>(): Model<T & Document, F>` This function is totally unnecessary, but this adds type information to the extended model, thus increases readability and correctness.
 - `type Doc<T> = T & MongooseDocument;` This type adds annotation for field/method made available in subschema by mongoose implicitly
@@ -29,7 +29,14 @@ Provides basic annotations to get started with mongoose in typescript
 check example for usage:
 
 ```typescript
-import { collection, field, schema, MongooseModel, Doc } from "../src/index";
+import {
+  collection,
+  field,
+  schema,
+  MongooseModel,
+  Doc,
+} from "mongoose-annotations";
+import { Schema } from "mongoose";
 
 @schema({ _id: true })
 class UserAuth {
@@ -39,6 +46,8 @@ class UserAuth {
   @field() name?: string = "name";
 
   @field() type?: number = 254; // Default schema value will be 254
+
+  @field() userId!: Schema.Types.ObjectId; // Can infer mongoose builtin types
 
   getType() {
     return this.type;
@@ -50,7 +59,7 @@ export class UserSchema {
   date!: Date;
 
   @field()
-  randomDATA: { heloo?: string } = { heloo: "hello" }; // Mixed type
+  randomDATA: { hello?: string } = { hello: "hello" }; // Mixed type
 
   @field({ type: [UserAuth] })
   auths!: Doc<UserAuth>[];
@@ -59,7 +68,7 @@ export class UserSchema {
   auth: Doc<UserAuth> = {} as any; // Doc type brings type annotations for sub schema
 
   getName() {
-    return "helslls";
+    return "j";
   }
 
   getMyName() {}
@@ -73,7 +82,11 @@ export class User extends MongooseModel<UserSchema>() {
 }
 ```
 
+---
+
 ### Model usage
+
+connect first, always connect first.
 
 ```typescript
 connect("mongodb://localhost:27017/myapp", { useNewUrlParser: true });
@@ -107,6 +120,8 @@ User.findById("5f42181555791f7879cfaebc")
     console.log(JSON.stringify(e));
   });
 ```
+
+---
 
 ### License
 
