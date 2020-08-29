@@ -11,9 +11,8 @@ import {
 } from "mongoose";
 import "reflect-metadata";
 
-import * as mongoose from 'mongoose'
-export default mongoose
-
+import * as mongoose from "mongoose";
+export default mongoose;
 
 const schemaSymbol = Symbol(undefined);
 const schemaClassSymbol = Symbol(undefined);
@@ -55,19 +54,21 @@ export function setDefaults(newDefaults: typeof defaults) {
  * ```
  * @param options
  */
-export const schema = (options?: SchemaOptions): ClassDecorator => (target): any => {
+export const schema = (options?: SchemaOptions): ClassDecorator => (
+  target
+): any => {
   const currentSchema = target.prototype[schemaSymbol] || {};
-  
+
   setDefaultValues: {
     if (defaults.evaluateDefaultAssignedValue) {
-        const object = new (target as any);
-        Object.keys(currentSchema).forEach((key) => {
-          const type = currentSchema[key];
-          const defaultValue = object[key];
-          if (defaultValue && !type["default"]) {
-            type["default"] = defaultValue;
-          }
-        });
+      const object = new (target as any)();
+      Object.keys(currentSchema).forEach((key) => {
+        const type = currentSchema[key];
+        const defaultValue = object[key];
+        if (defaultValue && !type["default"]) {
+          type["default"] = defaultValue;
+        }
+      });
     }
   }
 
@@ -104,7 +105,7 @@ export const collection = (
   target: any,
   skipInit = false
 ): ClassDecorator => (modelTarget) => {
-  const mongooseSchema = new Schema(getSchemaType(target))
+  const mongooseSchema = new Schema(getSchemaType(target));
   const CurrentModel = model(
     modelTarget as any,
     mongooseSchema,
@@ -137,16 +138,16 @@ export const field = <T>(options?: SchemaTypeOpts<T>): PropertyDecorator => (
   key
 ) => {
   if (!(target as any)[schemaSymbol]) {
-    Object.defineProperty(target, schemaClassSymbol, {value: target})
+    Object.defineProperty(target, schemaClassSymbol, { value: target });
     Object.defineProperty(target, schemaSymbol, {
       value: {},
     });
   }
 
-  if((target as any)[schemaClassSymbol] !== target) {
-    Object.defineProperty(target, schemaClassSymbol, {value: target})
+  if ((target as any)[schemaClassSymbol] !== target) {
+    Object.defineProperty(target, schemaClassSymbol, { value: target });
     Object.defineProperty(target, schemaSymbol, {
-      value: { ... (target as any)[schemaSymbol]},
+      value: { ...(target as any)[schemaSymbol] },
     });
   }
 
@@ -154,7 +155,7 @@ export const field = <T>(options?: SchemaTypeOpts<T>): PropertyDecorator => (
   const fieldType = Reflect.getMetadata("design:type", target, key);
   const type = getSchemaType(fieldType);
 
-  if (type && type !== Object) {
+  if (type && type !== Object && type !== Array) {
     schema[key] = {
       type: fieldType,
     };
@@ -164,8 +165,15 @@ export const field = <T>(options?: SchemaTypeOpts<T>): PropertyDecorator => (
     };
   }
   if (options) {
-    if(options.type) {
-      options.type = getSchemaType(options.type)
+    if (options.enum && schema[key]["type"] === Schema.Types.Mixed) {
+      if (type === Array) {
+        schema[key]["type"] = [String];
+      } else {
+        schema[key]["type"] = String;
+      }
+    }
+    if (options.type) {
+      options.type = getSchemaType(options.type);
     }
     Object.assign(schema[key], options);
   }
@@ -187,8 +195,8 @@ const getSchemaType = (schemaType: any): any => {
     return schema()(schemaType);
   }
 
-  if(Array.isArray(schemaType)) {
-    return schemaType.map(type => getSchemaType(type))
+  if (Array.isArray(schemaType)) {
+    return schemaType.map((type) => getSchemaType(type));
   }
 
   return schemaType;
@@ -221,13 +229,23 @@ export function MongooseModel<T, F = {}>(): Model<T & Document, F> {
  */
 export type Doc<T> = T & MongooseDocument;
 
-
 export class MongooseSchema {
-  private static [schemaSymbol] = {}
+  private static [schemaSymbol] = {};
   private static [schemaInstanceSymbol]: Schema = new Schema({});
 
   static get schema() {
-    return (this[schemaInstanceSymbol]) as mongoose.Schema
+    return this[schemaInstanceSymbol] as mongoose.Schema;
   }
+}
 
+/**
+ * Returns values of typescript enum
+ */
+export function enumValues<T>(value: any): any[] {
+  if (!value) {
+    return [];
+  }
+  return Object.keys(value)
+    .filter((key) => Number.isNaN(+key))
+    .map((key) => value[key]);
 }
