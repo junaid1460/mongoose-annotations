@@ -15,8 +15,8 @@ import * as mongoose from 'mongoose'
 export default mongoose
 
 
-export const schemaSymbol = Symbol(undefined);
-export const schemaClassSymbol = Symbol(undefined);
+const schemaSymbol = Symbol(undefined);
+const schemaClassSymbol = Symbol(undefined);
 const schemaInstanceSymbol = Symbol(undefined);
 const isDecoratedType = Symbol(undefined);
 const isSchemaType = Symbol(undefined);
