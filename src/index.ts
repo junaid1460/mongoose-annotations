@@ -230,7 +230,4 @@ export class MongooseSchema {
     return (this[schemaInstanceSymbol]) as mongoose.Schema
   }
 
-  static get plainSchema() {
-    return (this[schemaSymbol]) as any
-  }
 }
