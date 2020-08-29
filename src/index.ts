@@ -11,7 +11,12 @@ import {
 } from "mongoose";
 import "reflect-metadata";
 
-const schemaSymbol = Symbol(undefined);
+import * as mongoose from 'mongoose'
+export default mongoose
+
+
+export const schemaSymbol = Symbol(undefined);
+export const schemaClassSymbol = Symbol(undefined);
 const schemaInstanceSymbol = Symbol(undefined);
 const isDecoratedType = Symbol(undefined);
 const isSchemaType = Symbol(undefined);
@@ -50,12 +55,12 @@ export function setDefaults(newDefaults: typeof defaults) {
  * ```
  * @param options
  */
-export const schema = (options?: SchemaOptions): ClassDecorator => (target) => {
+export const schema = (options?: SchemaOptions): ClassDecorator => (target): any => {
   const currentSchema = target.prototype[schemaSymbol] || {};
+  
   setDefaultValues: {
     if (defaults.evaluateDefaultAssignedValue) {
-      try {
-        const object = new (target as any)();
+        const object = new (target as any);
         Object.keys(currentSchema).forEach((key) => {
           const type = currentSchema[key];
           const defaultValue = object[key];
@@ -63,16 +68,12 @@ export const schema = (options?: SchemaOptions): ClassDecorator => (target) => {
             type["default"] = defaultValue;
           }
         });
-      } catch (e) {
-        throw new Error("");
-      }
     }
   }
+
   const mongooseSchema = new Schema(currentSchema, options);
   mongooseSchema.loadClass(target);
   setMeta: {
-    if (Object.getPrototypeOf(target) !== Model)
-      Object.setPrototypeOf(target, mongooseSchema);
     Object.defineProperty(target, isSchemaType, {
       value: true,
     });
@@ -103,9 +104,7 @@ export const collection = (
   target: any,
   skipInit = false
 ): ClassDecorator => (modelTarget) => {
-  const schemaInstance = (target as any)[schemaInstanceSymbol];
-  const mongooseSchema =
-    schemaInstance || schema()(target as any)[schemaInstanceSymbol];
+  const mongooseSchema = new Schema(getSchemaType(target))
   const CurrentModel = model(
     modelTarget as any,
     mongooseSchema,
@@ -138,8 +137,16 @@ export const field = <T>(options?: SchemaTypeOpts<T>): PropertyDecorator => (
   key
 ) => {
   if (!(target as any)[schemaSymbol]) {
+    Object.defineProperty(target, schemaClassSymbol, {value: target})
     Object.defineProperty(target, schemaSymbol, {
       value: {},
+    });
+  }
+
+  if((target as any)[schemaClassSymbol] !== target) {
+    Object.defineProperty(target, schemaClassSymbol, {value: target})
+    Object.defineProperty(target, schemaSymbol, {
+      value: { ... (target as any)[schemaSymbol]},
     });
   }
 
@@ -147,29 +154,29 @@ export const field = <T>(options?: SchemaTypeOpts<T>): PropertyDecorator => (
   const fieldType = Reflect.getMetadata("design:type", target, key);
   const type = getSchemaType(fieldType);
 
-  if (type !== Object) {
+  if (type && type !== Object) {
     schema[key] = {
       type: fieldType,
     };
-    if (options) {
-      Object.assign(schema[key], options);
-    }
   } else {
     schema[key] = {
       type: Schema.Types.Mixed,
     };
-    if (options) {
-      Object.assign(schema[key], options);
+  }
+  if (options) {
+    if(options.type) {
+      options.type = getSchemaType(options.type)
     }
+    Object.assign(schema[key], options);
   }
 };
 
-const getSchemaType = (schemaType: any) => {
+const getSchemaType = (schemaType: any): any => {
   if (!schemaType) {
     throw new Error("Cannot embed non schema types");
   }
   if (schemaType[isSchemaType]) {
-    return schemaType;
+    return schemaType[schemaInstanceSymbol];
   }
 
   if (schemaType[isDecoratedType]) {
@@ -180,15 +187,16 @@ const getSchemaType = (schemaType: any) => {
     return schema()(schemaType);
   }
 
+  if(Array.isArray(schemaType)) {
+    return schemaType.map(type => getSchemaType(type))
+  }
+
   return schemaType;
 };
 
 export const arrayOf = <T>(schema: T): T[] => {
   const embedded = getSchemaType(schema);
   const type = [embedded];
-  Object.defineProperty(type, isSchemaType, {
-    value: true,
-  });
   return type;
 };
 /**
@@ -212,3 +220,17 @@ export function MongooseModel<T, F = {}>(): Model<T & Document, F> {
  * Adds type annotation for sub schema field
  */
 export type Doc<T> = T & MongooseDocument;
+
+
+export class MongooseSchema {
+  private static [schemaSymbol] = {}
+  private static [schemaInstanceSymbol]: Schema = new Schema({});
+
+  static get schema() {
+    return (this[schemaInstanceSymbol]) as mongoose.Schema
+  }
+
+  static get plainSchema() {
+    return (this[schemaSymbol]) as any
+  }
+}
