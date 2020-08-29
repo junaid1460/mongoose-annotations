@@ -14,17 +14,11 @@ class UserAuth extends MongooseSchema  {
   }
 }
 
-
-
 @schema()
 class UserAuthExtended extends UserAuth {
 
   @field() type_string: string = "hello"; // Default schema value will be 254
 }
-
-
-
-
 
 
 @schema()
