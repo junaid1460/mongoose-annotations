@@ -1,7 +1,7 @@
-import { collection, field, schema, MongooseModel, Doc } from "../src/index";
+import  { collection, field, schema, MongooseModel, Doc, MongooseSchema } from "../src/index";
 
 @schema({ _id: true })
-class UserAuth {
+class UserAuth extends MongooseSchema  {
   // Lib will call new on the class and figures the default values
   // If default is dynamic then pass in a provider function @field({ default: ... })
   // These defaults will be part of generated schema
@@ -10,11 +10,25 @@ class UserAuth {
   @field() type?: number = 254; // Default schema value will be 254
 
   getType() {
-    return this.type;
+    return this.type; 
   }
 }
 
-export class UserSchema {
+
+
+@schema()
+class UserAuthExtended extends UserAuth {
+
+  @field() type_string: string = "hello"; // Default schema value will be 254
+}
+
+
+
+
+
+
+@schema()
+export class UserSchema extends MongooseSchema  {
   @field({ default: Date }) // Default provider function
   date!: Date;
 
@@ -24,8 +38,8 @@ export class UserSchema {
   @field({ type: [UserAuth] })
   auths!: Doc<UserAuth>[];
 
-  @field({ type: UserAuth })
-  auth: Doc<UserAuth> = {} as any; // Doc type brings type annotations for sub schema
+  @field({ type: UserAuthExtended, })
+  auth: Doc<UserAuthExtended> = {} as any; // Doc type brings type annotations for sub schema
 
   getName() {
     return "helslls";
@@ -41,8 +55,3 @@ export class User extends MongooseModel<UserSchema>() {
   }
 }
 
-console.log(
-  new User({
-    auths: [{}],
-  }).auth.depopulate
-);
