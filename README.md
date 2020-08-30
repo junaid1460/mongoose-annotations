@@ -25,6 +25,8 @@ Provides basic annotations to get started with mongoose in typescript
   - target: Any mongoose allowed types
 - `function MongooseModel<T, F = {}>(): Model<T & Document, F>` This function is totally unnecessary, but this adds type information to the extended model, thus increases readability and correctness.
 - `type Doc<T> = T & MongooseDocument;` This type adds annotation for field/method made available in subschema by mongoose implicitly
+- `enumValues<T>(value: any): any[]` returns values for typescript enum.
+- `class MongooseSchema` optionally extended by schema class to access compiled schema
 
 check example for usage:
 
