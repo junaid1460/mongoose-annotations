@@ -16,7 +16,6 @@ class NonDefaultTypesSchema extends MongooseSchema {
   @field() array?: Array<string>;
   @field() buffer?: Buffer;
   @field() bigInt?: BigInt;
-  @field({}) set?: Set<string> = new Set(["name"]);
 }
 
 @collection("user", NonDefaultTypesSchema)
