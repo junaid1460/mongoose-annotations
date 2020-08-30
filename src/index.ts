@@ -154,8 +154,11 @@ export const field = <T>(options?: SchemaTypeOpts<T>): PropertyDecorator => (
   const schema = (target as any)[schemaSymbol];
   const fieldType = Reflect.getMetadata("design:type", target, key);
   const type = getSchemaType(fieldType);
-
-  if (type && type !== Object && type !== Array) {
+  if (type === Array) {
+    schema[key] = {
+      type: [String],
+    };
+  } else if (type && type !== Object) {
     schema[key] = {
       type: fieldType,
     };
