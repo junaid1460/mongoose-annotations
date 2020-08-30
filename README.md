@@ -37,11 +37,12 @@ import {
   schema,
   MongooseModel,
   Doc,
+  MongooseSchema,
+  enumValues,
 } from "mongoose-annotations";
-import { Schema } from "mongoose";
 
 @schema({ _id: true })
-class UserAuth {
+class UserAuth extends MongooseSchema {
   // Lib will call new on the class and figures the default values
   // If default is dynamic then pass in a provider function @field({ default: ... })
   // These defaults will be part of generated schema
@@ -49,28 +50,40 @@ class UserAuth {
 
   @field() type?: number = 254; // Default schema value will be 254
 
-  @field() userId!: Schema.Types.ObjectId; // Can infer mongoose builtin types
-
   getType() {
     return this.type;
   }
 }
 
-export class UserSchema {
+enum Type {
+  NAME = "1",
+  HEY = 2,
+}
+
+@schema()
+class UserAuthExtended extends UserAuth {
+  @field({
+    enum: [...enumValues(Type)],
+  })
+  type_string: Type[] = []; // Default schema value will be 254
+}
+
+@schema()
+export class UserSchema extends MongooseSchema {
   @field({ default: Date }) // Default provider function
   date!: Date;
 
   @field()
-  randomDATA: { hello?: string } = { hello: "hello" }; // Mixed type
+  randomDATA: { heloo?: string } = { heloo: "hello" }; // Mixed type
 
   @field({ type: [UserAuth] })
   auths!: Doc<UserAuth>[];
 
-  @field({ type: UserAuth })
-  auth: Doc<UserAuth> = {} as any; // Doc type brings type annotations for sub schema
+  @field({ type: UserAuthExtended })
+  auth: Doc<UserAuthExtended> = {} as any; // Doc type brings type annotations for sub schema
 
   getName() {
-    return "j";
+    return "hi";
   }
 
   getMyName() {}
