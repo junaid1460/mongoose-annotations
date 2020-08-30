@@ -6,7 +6,8 @@
   "scripts": {
     "prepublish": "npm run build",
     "prebuild": "rm -rf ./build",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,23 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.10",
+    "jest": "^26.4.2",
+    "jest-cli": "^26.4.2",
+    "ts-jest": "^26.3.0",
     "typescript": "^4.0.2"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testMatch": [
+      "**/__test__/*.ts"
+    ],
+    "testPathIgnorePatterns": [
+      "/build",
+      "/example",
+      "/node_modules",
+      "/.vscode"
+    ],
+    "testEnvironment": "node"
   }
 }
