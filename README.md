@@ -65,7 +65,7 @@ class UserAuthExtended extends UserAuth {
   @field({
     enum: [...enumValues(Type)],
   })
-  type_string: Type[] = []; // Default schema value will be 254
+  type_string: Type[] = [];
 }
 
 @schema()
