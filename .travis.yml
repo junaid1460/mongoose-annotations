@@ -4,7 +4,7 @@ node_js:
   - "12"
 
 install:
+  - ls -lah
   - npm install
 script:
-  - ls -lah
   - npm run test
