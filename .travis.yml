@@ -6,4 +6,5 @@ node_js:
 install:
   - npm install
 script:
+  - ls -lah
   - npm run test
