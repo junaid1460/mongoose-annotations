@@ -1,0 +1,12 @@
+version: "3.0"
+services:
+  test:
+    image: node:12
+    volumes:
+      [
+        "./src:/home/node/src",
+        "./package.json:/home/node/package.json",
+        "./tsconfig.json:/home/node/tsconfig.json",
+      ]
+    command: sh -c "ls && npm i && npm t"
+    working_dir: /home/node
