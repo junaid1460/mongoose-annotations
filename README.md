@@ -1,5 +1,7 @@
 # Annotations for mongoose
 
+<span class="badge-npmversion"><a href="https://npmjs.org/package/badges" title="View this project on NPM"><img src="https://img.shields.io/npm/v/mongoose-annotations.svg" alt="NPM downloads" /></a></span>
+
 Provides basic annotations to get started with mongoose in typescript
 
 ```
